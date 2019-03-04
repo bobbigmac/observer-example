@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script type="text/javascript" src="./observable.js"></script>
+		<script type="text/javascript" src="./events.js"></script>
+		<script type="text/javascript" src="./shorthand.js"></script>
+		<script type="text/javascript" id="demo-source">
+			document.addEventListener('DOMContentLoaded', function() {
+				window.test = new Observable(new ObservableObject({ test: 'hello', hello: 'default' }));
+
+				const logIt = function(key, value) {
+					console.log('set key', key, 'to value', value, 'outer');
+				};
+
+				test.on('set', 'hello', logIt);
+				test.hello = 'shouldsee';
+
+				test.off('set', 'hello', logIt);
+				test.hello = 'shouldnotsee';
+
+				test.on('set', 'hello', logIt);
+				test.hello = 'shouldseeagain';
+			});
+		</script>
+	</head>
+	<body>
+	</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script type="text/javascript" id="demo-source">
+			class ObservableObject extends Object {
+				ensure(type) {
+					this.events = this.events || {};
+					this.events[type] = this.events[type] || [];
+				}
+				on(type, key, handler) {
+					this.ensure(type);
+
+					this.events[type].push({
+						key, handler
+					});
+				}
+			};
+
+			class Observable {
+				constructor(subject) {
+					this.subject = Object.assign(new ObservableObject(), subject);
+
+					let proxy = new Proxy(this.subject, {
+						get: function(target, prop) {
+							// console.log('get', target, prop);
+						  if(target.events && target.events.get && target.events.get.length) {
+						  	target.events.get
+						  		.filter(x => x.key === prop && x.handler)
+						  		.map(x => x.handler(prop, value));
+						  }
+
+							return target[prop];
+						},
+						set: function(target, prop, value) {
+						  target[prop] = value;
+
+						  // console.log('set', this, target, prop, value);
+						  if(target.events && target.events.set && target.events.set.length) {
+						  	target.events.set
+						  		.filter(x => x.key === prop && x.handler)
+						  		.map(x => x.handler(prop, value));
+						  }
+
+						  return true;
+						}
+					});
+
+			        // You're just getting a proxy back really
+					return proxy;
+				}
+			}
+
+			// Create an observable
+			window.test = new Observable({ test: 'hello', hello: 'default' });
+
+			// Setup a logger
+			const logIt = function(key, value) {
+			  console.log(test);
+			  console.log('set key "'+ key + '" to value "' + value + '"');
+			};
+
+			// Subscribe to 'observe' changes to a property
+			test.on('set', 'test', logIt);
+			test.on('set', 'hello', logIt);
+			// Set a property value
+			test.hello = 'I set hello to something';
+
+		</script>
+	</head>
+	<body>
+	</body>
+</html>
